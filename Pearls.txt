@@ -1,0 +1,147 @@
+consolerouter --add --src *.{error,print,warn},system.debug.debug --dest serial -q
+tcprelay --portoffset 10000 873 23
+
+export RSYNC_PASSWORD=alpine
+rsync  -r "$1" rsync://root@localhost:10873/root/AppleInternal/Diags/Logs/Smokey/
+
+ssh lasco@10.175.68.121       #远程登陆
+ssh -l lasco 10.175.68.121
+exit
+
+ls | grep "$*"                   #注意“号，不加的话，$*内容里可能有空格。[grep 模式 文件名...]
+ls | grep -i -n -v .*[.]c        #-i 忽略大小写，-n 打印行号，-v 对模式求反,后面匹配所有的C文件，grep的正则式与shell不同。  
+ls | grep "\<datasource\>"       #\< 单词首，\>单词尾
+ls | grep -e "data" -e "var" -e "^$"    #-e 多模式匹配,   ^匹配行首，$匹配行尾，^$匹配空行。
+ls | grep 'test\.[^h]'           #注意.的转义，加‘或”，^在[]中的意义：匹配不是.h的模式文件。
+grep -R[-r] dir                  #R[r] recursive
+
+find / -type f -name '*.log' -print    
+find / -name *.c -size +5000c -print   #打印字符大于5000的.c文件。
+find . -user li -print			#打印用户li的文件
+find . -perm 777 -print 
+find . -atime +20 -print              #查找早于20天前访问的文件
+find . -atime +20 -exec ls -l {} \;   
+
+cut -c1-10 data                #析取data中1~10的字符
+cut -c1,10 data                #析取data中第1和第10的字符
+cut -c10-  data                #-代表到行尾
+cut -d: -f1,6 /etc/passwd      #-d:指定：为分隔符，-f1 指定第一个字段（field）
+tr e x < infos                 #把所有的e转化为x
+tr '[a-z]' '[A-Z]' < infos     #小写转化大写
+tr -s ':' ' '  < infos         #把一个或多个：号替换为空格
+tr -d ' '      < infos         #删除空格
+
+uniq name                      #显示惟一行
+uniq -d name                   #找出重复的行
+uniq -c name                   #与uniq 相似，在行首显示行出现的次数
+
+Sed   #[address1,address2][function][arguments],sed '一系列ed命令‘ 文件名 ….
+sed -n '/love/p'               #p 打印，-n 取消默认的全部打印
+sed '1,3d' filename
+sed '/Tom/d' filename
+sed '/Tom/!d' filename #！对匹配条件取反。
+sed ’s/[0-9][0-9]$/&.5/' datafile  #'&'符号代表查找串中匹配的内容。
+sed 's/old/new/gp' datafile   #g 行内全局替换
+sed 's/\(mar\)got/\1iadd/p' datafile  #包含在（）里的模式保存在特定寄存器中，作为标签1，通过\1引用。
+sed -n '/west/,/east/p' datafile
+sed -n '/3,/^northeast/p' datafile
+sed -e '1,3d' -e 's/old/new/' datafile
+sed '/^north/a\\
+    somethings' datafile   #在匹配的行后追加。
+sed '/^north/i\\
+    somethings' datafile   #在匹配的行前添加。
+sed '/^north/c\\
+    somethings' datafile   #修改当前行。
+sed '/eastern/{n; s/AM/Archine/;}' datafile #n 读取下一行。
+
+awk -F: '{print $2}' /etc/passwd
+
+tar -cf all.tar *.jpg      #-c是表示产生新的包,-f指定包的文件名。 
+tar -rf all.tar *.gif      #将所有.gif的文件增加到all.tar的包里面去。-r增加.
+tar -uf all.tar logo.gif   #更新原来tar包all.tar中logo.gif文件，-u是表示更新文件的意思。 
+tar -tf all.tar            #列出all.tar包中所有文件 
+tar -xf all.tar            #解出all.tar包中所有文件
+
+tar -czf all.tar.gz *.jpg
+tar -xzf all.tar.gz
+
+
+vi
+:e!            #returns you to the last saved version of the file, so you can start over.
+:0 (digit zero)       #Move to beginning of line.
+:$                    #Move to end of line.
+:2dd                  #Delete the first two lines with the cursor positioned.
+:D(d$)        #The D command deletes from the cursor position to the end of the line.
+
+:(                      #Move to beginning of current sentence.
+:)                      #Move to beginning of next sentence.
+:{                      #Move to beginning of current paragraph.
+:}                      #Move to beginning of next paragraph.
+:[[                     #Move to beginning of current section.
+:]]                     #Move to beginning of next section.
+
+:H                      #Move to home—the top line on screen.
+:M                      #Move to home—the top line on screen.
+:L                      #Move to last line on screen.
+:nH                     #Move to n lines below top line.
+:nL                     #Move to n lines above last line.
+:/pattern               #Type in the pattern that you want to find.
+:?pattern               #Search backward.
+:/                      #Repeat search forward.
+:?                      #Repeat search backward.
+:G                      #Go to end of file.
+:nG                     #Go to given line n.
+
+vi +n file             #Opens file at line number n.
+vi + file              #Opens file at last line.
+vi +/pattern file      #Opens file at the first occurrence of pattern. 
+
+:s/old/new/g
+:50,100s/old/new/g
+:1,$s/old/new/g
+:%s/old/new/g           #% == 1,$
+:g/pattern/s/old/new/g
+:g/^$/d
+:!command               #Executing Unix Commands.  
+
+diff,cmp,comm          #diff old new(c,a,d)       
+printf "%x" 100        #SHELL下简单数值转化
+man   ascii
+man   man
+od -cb file            #(char,八进制)
+set                    #显示shell变量
+
+gcc -E  test.c -o test.i  #-E预处理 
+gcc -M  test.c -o tmp     #-M选项指示预处理程序输出完整的依赖行
+gcc -S test.c           #生成汇编文件
+gcc -c test.c           #生成test.o文件
+gcc -g test.c           #加入gdb调试符号， gdb a.out打开（run,break,list,next,step,print,q) 
+gcc -pg test.c          #生成调用图表.
+gcc test.c -lm -o test 
+ar -crl libtest.a test1.o test2.o       #创建test.a库(-cr creat and replace),-l the next argument is the name of the libary file.
+ranlib libtest.a                        #After create or modify an archive ,may need run ranlib
+ar -t  libtest.a                       #list 库中的 .o文件 
+gcc -g -o test -L. -ltest use.c  #-L tells the linker what directory to look in.-l(lowercase)tells the linker what files to look for.
+cat /etc/shells                        #系统支持的shells.
+as -o test.o test.s
+ld -o test test.o
+objdump -d test.o
+ulimit -a
+ulimit -c size
+gdb a.out core                         #检查core 文件
+nm a.out                               #查看符号表
+time ./a.out    
+
+ifconfig
+
+Emacs
+Alt + !      ;;输入Shell 命令
+M-hexl-mode  ;;二进制文件16进制显示模式
+(global-linum-mode t) ;;set line number
+
+;;Install package from Melpa, after this, “M-list-packages” and then “package-install”
+;;the “list” is to reconnect the package server
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/"))
+(package-initialize)
