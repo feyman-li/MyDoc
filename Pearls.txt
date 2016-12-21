@@ -145,3 +145,6 @@ M-hexl-mode  ;;二进制文件16进制显示模式
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/"))
 (package-initialize)
+
+;;Creat the tags
+ find . -name "*.cpp" -print -or -name "*.h" -print | xargs etags -  
