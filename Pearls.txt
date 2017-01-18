@@ -148,3 +148,5 @@ M-hexl-mode  ;;二进制文件16进制显示模式
 
 ;;Creat the tags
  find . -name "*.cpp" -print -or -name "*.h" -print | xargs etags -  
+
+ioreg -p IOUSB -l -w 0 #Look up usb on Mac
